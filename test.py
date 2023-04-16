@@ -7,12 +7,6 @@ import sys
 
 tests = []
 
-# memory write by dgbu sometimes fails
-# or writes garbage (fe, ff, etc.)
-
-# make every command send confirmation after it finishes
-# ex. after cpu finishes execution
-
 tests.append(Test("load imm A/X/Y",
     """
       .org $8000
@@ -88,6 +82,109 @@ tests.append(Test("transfers Y->",
       tya
     """, 1+2*3,
     "A=10"))
+    
+tests.append(Test("ALU adc imm",
+    """
+      .org $8000
+      lda #$10
+      adc #$5
+    """, 1+2*2,
+    "A=15"))
+    
+tests.append(Test("ALU adc abs",
+    """
+      .org $8000
+      lda #$10
+      sta $0200
+      lda #$25
+      adc $0200
+    """, 1+(4+2)*2,
+    "A=35"))
+    
+tests.append(Test("index increments",
+    """
+      .org $8000
+      ldx #$30
+      inx
+      inx
+      ldy #$20
+      iny
+      iny
+    """, 1+2*6,
+    "X=32", "Y=22"))
+
+tests.append(Test("ALU sbc imm",
+    """
+      .org $8000
+      lda #$10
+      sbc #$5
+    """, 1+2*2,
+    "A=0b"))
+    
+tests.append(Test("ALU sbc abs",
+    """
+      .org $8000
+      lda #$5
+      sta $0200
+      lda #$30
+      sbc $0200
+    """, 1+(4+2)*2,
+    "A=2b"))
+
+tests.append(Test("ALU ora imm",
+    """
+      .org $8000
+      lda #$10
+      ora #$5
+    """, 1+2*2,
+    "A=15"))
+    
+tests.append(Test("ALU ora abs",
+    """
+      .org $8000
+      lda #$4
+      sta $0200
+      lda #$38
+      ora $0200
+    """, 1+(4+2)*2,
+    "A=3c"))
+
+tests.append(Test("ALU and imm",
+    """
+      .org $8000
+      lda #$10
+      and #$5
+    """, 1+2*2,
+    "A=0"))
+    
+tests.append(Test("ALU and abs",
+    """
+      .org $8000
+      lda #$1c
+      sta $0200
+      lda #$38
+      and $0200
+    """, 1+(4+2)*2,
+    "A=18"))
+    
+tests.append(Test("ALU eor imm",
+    """
+      .org $8000
+      lda #$10
+      eor #$15
+    """, 1+2*2,
+    "A=5"))
+    
+tests.append(Test("ALU eor abs",
+    """
+      .org $8000
+      lda #$1c
+      sta $0200
+      lda #$38
+      eor $0200
+    """, 1+(4+2)*2,
+    "A=24"))
+    
 
 prot = Proto(serial.Serial("/dev/ttyUSB0", 115200))
 
