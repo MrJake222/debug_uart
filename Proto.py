@@ -61,9 +61,9 @@ class Proto:
         self.ser.write(bytes([0x11, FILL]))
         return self.ser.read(2)
         
-    def get_IR(self):
+    def get_IR_P(self):
         self.ser.write(bytes([0x12, FILL]))
-        return self.ser.read(2)[0]
+        return self.ser.read(2)
         
     def get_PC(self):
         self.ser.write(bytes([0x13, FILL]))
@@ -108,6 +108,13 @@ class Proto:
         
         return addr_dict
     
+    """
+    Get a value
+    name can be:
+        register A X Y S IR P PC -- read register value
+        M(<hex addr>) -- read memory value at <hex addr>
+        B(<register>, <bit>) -- read <register> <bit> value
+    """
     def get(self, name):
         if name == "A":
             return self.get_A_S()[0]
@@ -119,7 +126,9 @@ class Proto:
             return self.get_A_S()[1]
         
         if name == "IR":
-            return self.get_IR()
+            return self.get_IR_P()[0]
+        if name == "P":
+            return self.get_IR_P()[1]
         if name == "PC":
             return self.get_PC()
             
@@ -127,6 +136,12 @@ class Proto:
             addr = int(name.split("(")[1].split(")")[0], 16)
             self.set_address_pointer(addr)
             return self.read_memory_2_byte()[0]
+        
+        if name.startswith("B"):
+            reg, bit = name.split("(")[1].split(")")[0].split(",")
+            val = self.get(reg.strip())
+            bit = int(bit.strip())
+            return (val >> bit) & 0x01
             
         raise ValueError("no such field")
         

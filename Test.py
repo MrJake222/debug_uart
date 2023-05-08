@@ -2,6 +2,12 @@ import subprocess
 
 # all numbers hex
 class Test:
+    """
+    name: test name (informative)
+    code: code for assembler
+    cycles: how many cycles to run
+    *tests: list of tests (strings), see verify() for docs
+    """
     def __init__(self, name, code, cycles, *tests):
         self.name = name
         self.code = code
@@ -51,7 +57,12 @@ class Test:
     def run(self, prot):
         prot.perform_cpu_reset()
         prot.run_cycles(self.cycles)
-        
+    
+    """
+    Test case
+    format: <what>=<hex number>
+    <what>: see Proto::get(<what>)
+    """
     def verify(self, prot):
         for what, should_be in self.tests.items():
             val = prot.get(what)

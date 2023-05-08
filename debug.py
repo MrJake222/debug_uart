@@ -130,7 +130,7 @@ try:
     if args.action == "status":
         A, S = prot.get_A_S()
         X, Y = prot.get_X_Y()
-        IR = prot.get_IR()
+        IR, P = prot.get_IR_P()
         PC = prot.get_PC()
         
         print(f"A     ${A:02x}")
@@ -138,6 +138,7 @@ try:
         print(f"Y     ${Y:02x}")
         print(f"S     ${S:02x}")
         print(f"IR    ${IR:02x}")
+        print(f"P     ${P:02x}")
         print(f"PC  ${PC:04x}")
 
 
