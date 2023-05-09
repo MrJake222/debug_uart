@@ -477,23 +477,35 @@ tests.append(Test("flag carry reset",
 	""", 1+2*3,
 	"B(P, 0)=0"))
 
-tests.append(Test("flag zero set",
+tests.append(Test("flag zero set cmp",
 	"""
 	  .org $8000
 	  lda #20
       cmp #20
 	""", 1+2*2,
 	"B(P, 1)=1"))
-tests.append(Test("flag zero reset",
+tests.append(Test("flag zero reset cmp",
 	"""
 	  .org $8000
 	  lda #20
       cmp #19
 	""", 1+2*2,
 	"B(P, 1)=0"))
+tests.append(Test("flag zero/carry set inx",
+	"""
+	  .org $8000
+	  ldx #$ff
+      inx
+	""", 1+2*2,
+	"B(P, 1)=1", "B(P, 0)=1"))
+tests.append(Test("flag zero/carry set iny",
+	"""
+	  .org $8000
+	  ldy #$ff
+      iny
+	""", 1+2*2,
+	"B(P, 1)=1", "B(P, 0)=1"))
 
-
-tests = []
 tests.append(Test("branch plus",
 	"""
 	  .org $8000
@@ -589,6 +601,74 @@ tests.append(Test("branch eq",
 	"X=52"))
 
 
+tests = []
+tests.append(Test("sta zpg",
+	"""
+	  .org $8000
+      lda #$15
+      sta $00
+	""", 1+2+3,
+	"M(00)=15"))
+tests.append(Test("lda zpg",
+	"""
+	  .org $8000
+      lda #$15
+      sta $00
+      ldx $00
+	""", 1+2+3+3,
+	"X=15"))
+tests.append(Test("adc zpg",
+	"""
+	  .org $8000
+      lda #$15
+      sta $00
+      lda #$05
+      adc $00
+	""", 1+2+3+2+3,
+	"A=1A"))
+tests.append(Test("asl zpg",
+	"""
+	  .org $8000
+      lda #$28
+      sta $00
+      asl $00
+	""", 1+2+3+5,
+	"M(00)=50"))
+
+
+tests = []
+tests.append(Test("carry chain",
+	"""
+ADR=$00
+	  .org $8000
+      lda #$C0
+      sta ADR
+      lda #$50
+      sta ADR+1
+      
+      clc
+      lda ADR
+      adc #64
+      sta ADR
+      lda ADR+1
+      adc #0
+      sta ADR+1
+	""", 1+(2+3)*2+2+(3+2+3)*2,
+	"M(00)=0", "M(01)=51"))
+
+tests.append(Test("sta ind, y",
+	"""
+	  .org $8000
+      lda #$15
+      sta $00
+      lda #$02
+      sta $01
+      
+      lda #$AA
+      ldy #$05
+      sta ($00), y
+	""", 1+(2+3)*2+2*2+6,
+	"M(00)=15", "M(01)=02", "M(021A)=AA"))
 
 prot = Proto(serial.Serial("/dev/ttyUSB0", 115200))
 
