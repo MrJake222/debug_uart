@@ -36,8 +36,11 @@ def get_args():
     
     status = subp.add_parser("status", description="check CPU registers")
     
-    run = subp.add_parser("run", description="start the processor for given number of cycles")
-    run.add_argument("clks", help="clocks to run", type=int)
+    run = subp.add_parser("run", description="start the processor")
+    run_grp = run.add_mutually_exclusive_group(required=True)
+    run_grp.add_argument("-c", "--clks", help="finite number of clocks to run", type=int)
+    run_grp.add_argument("-f", "--freerun", help="free run mode enabled", action='store_true')
+    run_grp.add_argument("-n", "--no-freerun", help="free run mode enabled", dest='feature', action='store_false')
     
     reset = subp.add_parser("reset", description="reset the processor")
     
@@ -143,10 +146,16 @@ try:
 
 
     if args.action == "run":
-        prot.run_cycles(args.clks)
+        if args.clks:
+            prot.run_cycles(args.clks)
+            
+            PC = prot.get_PC()
+            print(f"run for {args.clks} cycles, PC: ${PC:04x}")
         
-        PC = prot.get_PC()
-        print(f"run for {args.clks} cycles, PC: ${PC:04x}")
+        if args.freerun is not None:
+            en = 1 if args.freerun else 0
+            prot.set_free_run(en)
+            print(f"set freerun to {en}")
 
 
     if args.action == "reset":

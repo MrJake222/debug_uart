@@ -76,6 +76,9 @@ class Proto:
     def perform_cpu_reset(self):
         self.request_with_echo("perform_cpu_reset", [0x21, FILL])
         self.run_cycles(1)
+        
+    def set_free_run(self, enabled):
+        self.request_with_echo("set_free_run", [0x22, enabled])
     
     # convenice functions
     def set_address_pointer(self, a):

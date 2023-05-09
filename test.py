@@ -531,48 +531,51 @@ tests.append(Test("branch minus",
 tests.append(Test("branch ov clear",
 	"""
 	  .org $8000
-      ldx #120
+      lda #120
+      clc
     .loop:
-      inx
+      adc #1
       bvc .loop
     n:
       jmp n
-	""", 1+2+(2+3)*20,
-	"X=80"))
+	""", 1+2*2+(2+3)*20,
+	"A=80"))
 tests.append(Test("branch ov set",
 	"""
 	  .org $8000
-      ldx #127
+      lda #127
+      clc
     .loop:
-      inx
+      adc #1
       bvs .loop
     n:
       jmp n
-	""", 1+2+(2+3)*20,
-	"X=81"))
+	""", 1+2*2+(2+3)*20,
+	"A=81"))
 tests.append(Test("branch carry clear",
 	"""
 	  .org $8000
-      ldx #250
+      lda #250
+      clc
     .loop:
-      inx
+      adc #1
       bcc .loop
     n:
       jmp n
-	""", 1+2+(2+3)*20,
-	"X=0"))
+	""", 1+2*2+(2+3)*20,
+	"A=0"))
 tests.append(Test("branch carry set",
 	"""
 	  .org $8000
-      ldx #255
+      lda #255
     .loop:
-      clc
-      inx
+        clc
+      adc #1
       bcs .loop
     n:
       jmp n
 	""", 1+2+(2+2+3)*20,
-	"X=1"))
+	"A=1"))
 tests.append(Test("branch not eq",
 	"""
 	  .org $8000
@@ -601,7 +604,7 @@ tests.append(Test("branch eq",
 	"X=52"))
 
 
-tests = []
+# tests = []
 tests.append(Test("sta zpg",
 	"""
 	  .org $8000
@@ -636,7 +639,7 @@ tests.append(Test("asl zpg",
 	"M(00)=50"))
 
 
-tests = []
+# tests = []
 tests.append(Test("carry chain",
 	"""
 ADR=$00
@@ -656,6 +659,16 @@ ADR=$00
 	""", 1+(2+3)*2+2+(3+2+3)*2,
 	"M(00)=0", "M(01)=51"))
 
+tests.append(Test("carry iny",
+	"""
+ADR=$00
+	  .org $8000
+      ldy #0
+      sec
+      iny
+	""", 1+2*3,
+	"Y=1"))
+
 tests.append(Test("sta ind, y",
 	"""
 	  .org $8000
@@ -672,13 +685,17 @@ tests.append(Test("sta ind, y",
 
 prot = Proto(serial.Serial("/dev/ttyUSB0", 115200))
 
+passed = 0
 for test in tests:
     test.compile()
     test.upload(prot)
     test.run(prot)
     r = test.verify(prot)
-    if r != 0:
-        sys.exit(1)
-else:
+    if r == 0:
+        passed += 1
+
+if passed == len(tests):
     print(f"all tests passed. count={len(tests)}")
+else:
+    print(f"{len(tests) - passed} tests failed. count={len(tests)}")
     
