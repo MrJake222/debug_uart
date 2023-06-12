@@ -27,7 +27,7 @@ class Test:
             f.write(self.code)
         
         p = subprocess.run([
-            "vasm6502_oldstyle", "-dotdir", "-wdc02", "-esc",
+            "vasm6502_oldstyle", "-dotdir", "-esc", #"-wdc02",
             "-Fihex", self.asm,
             "-o", self.pgm
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -44,19 +44,30 @@ class Test:
             "-v"
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
-        if p.returncode != 0:
-            print(f"debug.py errored")
-            print(p.stderr.decode())
-            subprocess.run([
-                "./debug.py", "read",
-                "-o", "8000",
-                "-n", "32"
-            ])
-            raise ValueError("debug.py error")
+        if p.returncode == 0:
+            # write reset vector
+            p = subprocess.run([
+                "./debug.py", "write",
+                "-o", "FFFC",
+                "--mem", "00", "80",
+                "-v"
+            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+            if p.returncode == 0:
+                return
+        
+        print(f"debug.py errored")
+        print(p.stderr.decode())
+        subprocess.run([
+            "./debug.py", "read",
+            "-o", "8000",
+            "-n", "32"
+        ])
+        raise ValueError("debug.py error")
 
     def run(self, prot):
         prot.perform_cpu_reset()
-        prot.run_cycles(self.cycles)
+        prot.run_cycles(self.cycles + 7) # plus reset routine
     
     """
     Test case
@@ -64,11 +75,16 @@ class Test:
     <what>: see Proto::get(<what>)
     """
     def verify(self, prot):
+        ok = True
+        
         for what, should_be in self.tests.items():
             val = prot.get(what)
             if val != should_be:
                 print(f"error in test {self.name}: {what} should be ${should_be:02x}, is ${val:02x}")
-                return -1
+                ok = False
+                
+        if not ok:
+            return -1
         
         print(f"test {self.name:20} OK.")
         return 0
