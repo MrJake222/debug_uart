@@ -899,13 +899,21 @@ tests.append(Test("sbc carry set",
         """, 1+2*3,
         "B(P, 0)=1"))
 
+import sys
 
-prot = Proto(serial.Serial("/dev/ttyUSB0", 115200))
+if len(sys.argv) != 3:
+    print("Usage:", sys.argv[0], "[serial port] [baud]")
+    exit(1)
+    
+serial_path = sys.argv[1]
+serial_baud = int(sys.argv[2])
+
+prot = Proto(serial.Serial(serial_path, serial_baud))
 
 passed = 0
 for test in tests:
     test.compile()
-    test.upload(prot)
+    test.upload(serial_path, serial_baud)
     test.run(prot)
     r = test.verify(prot)
     if r == 0:

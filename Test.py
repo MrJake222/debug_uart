@@ -37,9 +37,11 @@ class Test:
             print(p.stderr.decode())
             raise ValueError("vasm error")
     
-    def upload(self, prot):
+    def upload(self, serial_path, serial_baud):
         p = subprocess.run([
-            "./debug.py", "write",
+            "./debug.py",
+            "-p", serial_path, "-b", str(serial_baud),
+            "write",
             "-i", self.pgm,
             "-v"
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -47,7 +49,9 @@ class Test:
         if p.returncode == 0:
             # write reset vector
             p = subprocess.run([
-                "./debug.py", "write",
+                "./debug.py",
+                "-p", serial_path, "-b", str(serial_baud),
+                "write",
                 "-o", "FFFC",
                 "--mem", "00", "80",
                 "-v"
@@ -59,7 +63,9 @@ class Test:
         print(f"debug.py errored")
         print(p.stderr.decode())
         subprocess.run([
-            "./debug.py", "read",
+            "./debug.py",
+            "-p", serial_path, "-b", str(serial_baud),
+            "read",
             "-o", "8000",
             "-n", "32"
         ])

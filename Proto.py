@@ -36,7 +36,6 @@ class Proto:
     # protocol functions
     def set_address_pointer_low(self, alow):
         self.request_with_echo("set_address_pointer_low", [0x01, alow])
-        self.request_with_echo("", [0x01, alow])
         
     def set_address_pointer_high(self, ahigh):
         self.request_with_echo("set_address_pointer_high", [0x02, ahigh])
@@ -89,7 +88,7 @@ class Proto:
         addresses = list(addresses)
         addr_dict = {addr: -1 for addr in addresses}
         
-        lastaddr = -1
+        lastaddr = -1000
         i = 0
         while i < len(addresses):
             addr = addresses[i]

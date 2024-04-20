@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 import serial
 import argparse
 from intelhex import IntelHex
@@ -63,7 +64,7 @@ try:
             data_dict = ih.todict()
         
         elif args.bin:
-            if not args.org:
+            if args.org is None:
                 p.error("-o/--org required with binary data")
                 
             print(f"loading binary data from {os.path.basename(args.bin)} at {args.org:04x}")
@@ -79,7 +80,7 @@ try:
                     addr += 1
             
         elif args.mem:
-            if not args.org:
+            if args.org is None:
                 p.error("-o/--org required with raw memory")
                 
             print(f"loading raw memory data data from command line at {args.org:04x}")
@@ -92,31 +93,41 @@ try:
         else:
             p.error("no data to write, provide one of --ihex/--bin/--mem")
                 
+        print()
+        print("writing data")
+        t1 = time.time()
                 
-        lastaddr = -1
+        lastaddr = -1000
         for addr, val in data_dict.items():
             if lastaddr+1 != addr:
                 print(f"loading adr_ptr with ${addr:04x}")
                 prot.set_address_pointer(addr)
             
-            print(f"${addr:04x}  ${val:02x}")
+            #print(f"${addr:04x}  ${val:02x}")
             prot.write_memory_1_byte(val)
             
             lastaddr = addr
-        
+            
+        t2 = time.time()
+        print(f"OK {t2-t1:.2f}s")
+                
         if args.verify:
+            print()
             print("verifying data")
+            t1 = time.time()
+            
             mem_dict = prot.read_memory_dict(data_dict.keys())
             for addr, val in data_dict.items():
                 if mem_dict[addr] != val:
                     eprint(f"verify error: first error at ${addr:04x}: should be ${val:02x}, is ${mem_dict[addr]:02x}")
                     sys.exit(1)
             
-            print("OK.")
+            t2 = time.time()
+            print(f"OK {t2-t1:.2f}s")
 
 
     if args.action == "read":
-        lastaddr = -1
+        lastaddr = -1000
         for i in range(0, args.num, 2):
             addr = args.org + i
             
