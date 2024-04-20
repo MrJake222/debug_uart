@@ -899,6 +899,22 @@ tests.append(Test("sbc carry set",
         """, 1+2*3,
         "B(P, 0)=1"))
 
+tests.append(Test("wdc dea",
+        """
+          .org $8000
+          lda #5
+          dea
+        """, 1+2*2,
+        "A=4"))
+        
+tests.append(Test("wdc ina",
+        """
+          .org $8000
+          lda #2
+          ina
+        """, 1+2*2,
+        "A=3"))
+
 import sys
 
 if len(sys.argv) != 3:

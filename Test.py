@@ -27,7 +27,7 @@ class Test:
             f.write(self.code)
         
         p = subprocess.run([
-            "vasm6502_oldstyle", "-dotdir", "-esc", #"-wdc02",
+            "vasm6502_oldstyle", "-dotdir", "-esc", "-wdc02",
             "-Fihex", self.asm,
             "-o", self.pgm
         ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
