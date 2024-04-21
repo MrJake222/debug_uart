@@ -73,7 +73,9 @@ class Test:
 
     def run(self, prot):
         prot.perform_cpu_reset()
-        prot.run_cycles(self.cycles + 7) # plus reset routine
+        # reset routine handled in reset
+        prot.run_cycles(self.cycles + 1)
+        # perform one extra cycle for any writebacks to finish
     
     """
     Test case

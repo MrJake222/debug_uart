@@ -44,6 +44,7 @@ def get_args():
     run_grp.add_argument("-n", "--no-freerun", help="free run mode enabled", dest='feature', action='store_false')
     
     reset = subp.add_parser("reset", description="reset the processor")
+    reset.add_argument("--pc", help="perform reset routine and read PC (disables freerun)", required=False, type=bool, default=False)
     
     #p.description="Interface the FPGA 6502 via UART\n\nActions:"
     for name, parser in subp.choices.items():
@@ -170,10 +171,13 @@ try:
 
 
     if args.action == "reset":
-        prot.perform_cpu_reset()
-        
-        PC = prot.get_PC()
-        print(f"performed reset, PC: ${PC:04x}")
+        if args.pc:
+            prot.perform_cpu_reset()
+            PC = prot.get_PC()
+            print(f"performed reset, PC: ${PC:04x}")
+        else:
+            # only pulse
+            prot.pulse_cpu_reset()
         
 except ProtoError:
     eprint(f"\n{sys.argv[0]}: protocol error occurred")

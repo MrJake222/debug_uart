@@ -13,7 +13,7 @@ tests.append(Test("load imm A/X/Y",
       lda #$20
       ldx #$21
       ldy #$22
-    """, 1+2*3,
+    """, 2*3,
     "A=20", "X=21", "Y=22"))
 tests.append(Test("store abs A/X/Y",
     """
@@ -24,7 +24,7 @@ tests.append(Test("store abs A/X/Y",
       sta $0200
       stx $0201
       sty $0202
-    """, 1+(2+4)*3,
+    """, (2+4)*3,
     "M(0200)=20", "M(0201)=21", "M(0202)=22"))
 tests.append(Test("load abs A/X/Y",
     """
@@ -38,7 +38,7 @@ tests.append(Test("load abs A/X/Y",
       lda $0202
       ldx $0200
       ldy $0201
-    """, 1+(2+4+4)*3,
+    """, (2+4+4)*3,
     "A=22", "X=20", "Y=21"))
 
 tests.append(Test("transfers A->",
@@ -49,7 +49,7 @@ tests.append(Test("transfers A->",
       ldy #$7
       tax
       tay
-    """, 1+2*5,
+    """, 2*5,
     "X=5", "Y=5"))
 tests.append(Test("transfers X->",
     """
@@ -58,7 +58,7 @@ tests.append(Test("transfers X->",
       lda #$9      
       txa
       txs
-    """, 1+2*4,
+    """, 2*4,
     "A=8", "S=8"))
 tests.append(Test("transfers S->",
     """
@@ -67,7 +67,7 @@ tests.append(Test("transfers S->",
       txs
       ldx #$10
       tsx
-    """, 1+2*4,
+    """, 2*4,
     "X=9"))
 tests.append(Test("transfers Y->",
     """
@@ -75,7 +75,7 @@ tests.append(Test("transfers Y->",
       ldy #$10
       lda #$11
       tya
-    """, 1+2*3,
+    """, 2*3,
     "A=10"))
     
     
@@ -83,13 +83,13 @@ tests.append(Test("flag carry set",
     """
       .org $8000
       sec
-    """, 1+2,
+    """, 2,
     "B(P, 0)=1"))
 tests.append(Test("flag carry reset",
     """
       .org $8000
       clc
-    """, 1+2,
+    """, 2,
     "B(P, 0)=0"))
 
 
@@ -99,7 +99,7 @@ tests.append(Test("ALU adc imm",
       lda #$10
       clc
       adc #$5
-    """, 1+2*3,
+    """, 2*3,
     "A=15")) 
 tests.append(Test("ALU adc abs",
     """
@@ -109,7 +109,7 @@ tests.append(Test("ALU adc abs",
       lda #$25
       clc
       adc $0200
-    """, 1+(4+2)*2+2,
+    """, (4+2)*2+2,
     "A=35"))
     
 tests.append(Test("index increments",
@@ -121,7 +121,7 @@ tests.append(Test("index increments",
       ldy #$20
       iny
       iny
-    """, 1+2*6,
+    """, 2*6,
     "X=32", "Y=22"))
 
 tests.append(Test("ALU sbc imm",
@@ -130,7 +130,7 @@ tests.append(Test("ALU sbc imm",
       lda #$10
       sec
       sbc #$5
-    """, 1+2*3,
+    """, 2*3,
     "A=0b"))
 tests.append(Test("ALU sbc abs",
     """
@@ -140,7 +140,7 @@ tests.append(Test("ALU sbc abs",
       lda #$30
       sec
       sbc $0200
-    """, 1+(4+2)*2+2,
+    """, (4+2)*2+2,
     "A=2b"))
 
 tests.append(Test("ALU ora imm",
@@ -148,7 +148,7 @@ tests.append(Test("ALU ora imm",
       .org $8000
       lda #$10
       ora #$5
-    """, 1+2*2,
+    """, 2*2,
     "A=15"))
 tests.append(Test("ALU ora abs",
     """
@@ -157,7 +157,7 @@ tests.append(Test("ALU ora abs",
       sta $0200
       lda #$38
       ora $0200
-    """, 1+(4+2)*2,
+    """, (4+2)*2,
     "A=3c"))
 
 tests.append(Test("ALU and imm",
@@ -165,7 +165,7 @@ tests.append(Test("ALU and imm",
       .org $8000
       lda #$10
       and #$5
-    """, 1+2*2,
+    """, 2*2,
     "A=0"))
 tests.append(Test("ALU and abs",
     """
@@ -174,7 +174,7 @@ tests.append(Test("ALU and abs",
       sta $0200
       lda #$38
       and $0200
-    """, 1+(4+2)*2,
+    """, (4+2)*2,
     "A=18"))
     
 tests.append(Test("ALU eor imm",
@@ -182,7 +182,7 @@ tests.append(Test("ALU eor imm",
       .org $8000
       lda #$10
       eor #$15
-    """, 1+2*2,
+    """, 2*2,
     "A=5"))
 tests.append(Test("ALU eor abs",
     """
@@ -191,7 +191,7 @@ tests.append(Test("ALU eor abs",
       sta $0200
       lda #$38
       eor $0200
-    """, 1+(4+2)*2,
+    """, (4+2)*2,
     "A=24"))
     
     
@@ -205,7 +205,7 @@ tests.append(Test("ALU dec abs",
       dec $0200
       sec
       dec $0200
-    """, 1+2+4+(2+6)*2,
+    """, 2+4+(2+6)*2,
     "MEM(0200)=3"))
 tests.append(Test("ALU dec abs,X",
     """
@@ -217,7 +217,7 @@ tests.append(Test("ALU dec abs,X",
       dec $0200, X
       sec
       dec $0200, X
-    """, 1+2+4+2+(2+6)*2,
+    """, 2+4+2+(2+6)*2,
     "MEM(0202)=3"))
     
 tests.append(Test("ALU inc abs",
@@ -229,7 +229,7 @@ tests.append(Test("ALU inc abs",
       inc $0200
       clc
       inc $0200
-    """, 1+2+4+(2+6)*2,
+    """, 2+4+(2+6)*2,
     "MEM(0200)=7"))
 tests.append(Test("ALU inc abs,X",
     """
@@ -241,7 +241,7 @@ tests.append(Test("ALU inc abs,X",
       clc
       inc $0200, X
       clc
-    """, 1+2+4+2+(2+6)*2,
+    """, 2+4+2+(2+6)*2,
     "MEM(0202)=7"))
 
 tests.append(Test("ALU asl abs c=1",
@@ -251,7 +251,7 @@ tests.append(Test("ALU asl abs c=1",
       sta $0200
       sec
       asl $0200
-    """, 1+2+4+2+6*1,
+    """, 2+4+2+6*1,
     "MEM(0200)=A", "B(P, 0)=1")) # P,0 -- carry out
 tests.append(Test("ALU asl abs,X c=0",
     """
@@ -261,14 +261,14 @@ tests.append(Test("ALU asl abs,X c=0",
       ldx #2
       clc
       asl $0200, X
-    """, 1+2+4+2+2+6*1,
+    """, 2+4+2+2+6*1,
     "MEM(0202)=A", "B(P, 0)=0"))
 tests.append(Test("ALU asl A",
     """
       .org $8000
       lda #$85
       asl A
-    """, 1+2+2,
+    """, 2+2,
     "A=A", "B(P, 0)=1"))
     
 tests.append(Test("ALU rol abs c=1",
@@ -278,7 +278,7 @@ tests.append(Test("ALU rol abs c=1",
       sta $0200
       sec
       rol $0200
-    """, 1+2+4+2+6*1,
+    """, 2+4+2+6*1,
     "MEM(0200)=B", "B(P, 0)=1"))
 tests.append(Test("ALU rol abs,X c=0",
     """
@@ -288,7 +288,7 @@ tests.append(Test("ALU rol abs,X c=0",
       ldx #2
       clc
       rol $0200, X
-    """, 1+2+4+2+2+6*1,
+    """, 2+4+2+2+6*1,
     "MEM(0202)=A", "B(P, 0)=0"))
 tests.append(Test("ALU rol A",
     """
@@ -296,7 +296,7 @@ tests.append(Test("ALU rol A",
       lda #$85
       clc
       rol A
-    """, 1+2*3,
+    """, 2*3,
     "A=A", "B(P, 0)=1"))
     
 tests.append(Test("ALU lsr abs c=1",
@@ -306,7 +306,7 @@ tests.append(Test("ALU lsr abs c=1",
       sta $0200
       sec
       lsr $0200
-    """, 1+2+4+2+6*1,
+    """, 2+4+2+6*1,
     "MEM(0200)=2", "B(P, 0)=1"))
 tests.append(Test("ALU lsr abs,X c=0",
     """
@@ -316,14 +316,14 @@ tests.append(Test("ALU lsr abs,X c=0",
       ldx #2
       clc
       lsr $0200, X
-    """, 1+2+4+2+2+6*1,
+    """, 2+4+2+2+6*1,
     "MEM(0202)=2", "B(P, 0)=0"))
 tests.append(Test("ALU lsr A",
     """
       .org $8000
       lda #$5
       lsr A
-    """, 1+2+2,
+    """, 2+2,
     "A=2", "B(P, 0)=1"))
     
 tests.append(Test("ALU ror abs c=1",
@@ -333,7 +333,7 @@ tests.append(Test("ALU ror abs c=1",
       sta $0200
       sec
       ror $0200
-    """, 1+2+4+2+6*1,
+    """, 2+4+2+6*1,
     "MEM(0200)=82", "B(P, 0)=1"))
 tests.append(Test("ALU ror abs,X c=0",
     """
@@ -343,7 +343,7 @@ tests.append(Test("ALU ror abs,X c=0",
       ldx #2
       clc
       ror $0200, X
-    """, 1+2+4+2+2+6*1,
+    """, 2+4+2+2+6*1,
     "MEM(0202)=2", "B(P, 0)=0"))
 tests.append(Test("ALU ror A + next",
     """
@@ -352,7 +352,7 @@ tests.append(Test("ALU ror A + next",
       clc
       ror A
       ldx #$88
-    """, 1+2*4,
+    """, 2*4,
     "A=2", "B(P, 0)=1", "X=88"))
 
 
@@ -369,7 +369,7 @@ tests.append(Test("abs x/y read",
       lda $0200, X
       ldy #3
       ldx $0200, Y
-    """, 1+2+(2+4)*4,
+    """, 2+(2+4)*4,
     "A=5", "X=A"))
 tests.append(Test("abs x/y write",
     """
@@ -380,7 +380,7 @@ tests.append(Test("abs x/y write",
       sta $0200, X
       lda #$A0
       sta $0200, Y
-    """, 1+2*3+4+2+4,
+    """, 2*3+4+2+4,
     "M(0202)=50", "M(0203)=A0"))
 tests.append(Test("abs x/y page overf",
     """
@@ -388,7 +388,7 @@ tests.append(Test("abs x/y page overf",
       ldx #$50
       lda #$AA
       sta $02F0, X
-    """, 1+2*2+5,
+    """, 2*2+5,
     "M(0340)=AA"))
 
 
@@ -401,7 +401,7 @@ tests.append(Test("stack pha",
 	  pha
 	  lda #$A0
 	  pha
-	""", 1+2*3+3+2+3,
+	""", 2*3+3+2+3,
 	"M(01FF)=50", "M(01FE)=A0")) 
 tests.append(Test("stack pla",
 	"""
@@ -412,7 +412,7 @@ tests.append(Test("stack pla",
 	  pha
 	  lda #$A0
 	  pla
-	""", 1+2*3+3+2+4,
+	""", 2*3+3+2+4,
 	"A=50")) 
 # TODO php plp
 
@@ -423,7 +423,7 @@ tests.append(Test("jmp",
 	.loop:
 	  inx
 	  jmp .loop
-	""", 1+2+(2+3)*10,
+	""", 2+(2+3)*10,
 	"X=0A")) 
 
 
@@ -432,14 +432,14 @@ tests.append(Test("flag neg reset",
 	  .org $8000
 	  lda #20
       sbc #15
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 7)=0"))
 tests.append(Test("flag neg set",
 	"""
 	  .org $8000
 	  lda #20
       sbc #30
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 7)=1"))
 
 tests.append(Test("flag ov set1",
@@ -447,28 +447,28 @@ tests.append(Test("flag ov set1",
 	  .org $8000
 	  lda #80
       adc #80
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 6)=1"))
 tests.append(Test("flag ov reset1",
 	"""
 	  .org $8000
 	  lda #20
       sbc #30
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 6)=0"))
 tests.append(Test("flag ov set2",
     """
       .org $8000
       lda #20
       sbc #130
-    """, 1+2*2,
+    """, 2*2,
     "B(P, 6)=1"))
 tests.append(Test("flag ov reset2",
 	"""
 	  .org $8000
 	  lda #20
       sbc #15
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 6)=0"))
     
 tests.append(Test("flag carry set",
@@ -476,7 +476,7 @@ tests.append(Test("flag carry set",
 	  .org $8000
 	  lda #120
       adc #150
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 0)=1"))
 tests.append(Test("flag carry reset",
 	"""
@@ -484,7 +484,7 @@ tests.append(Test("flag carry reset",
 	  lda #20
       sec
       adc #20
-	""", 1+2*3,
+	""", 2*3,
 	"B(P, 0)=0"))
 
 tests.append(Test("flag zero set cmp",
@@ -492,28 +492,28 @@ tests.append(Test("flag zero set cmp",
 	  .org $8000
 	  lda #20
       cmp #20
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 1)=1"))
 tests.append(Test("flag zero reset cmp",
 	"""
 	  .org $8000
 	  lda #20
       cmp #19
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 1)=0"))
 tests.append(Test("flag zero/carry set inx",
 	"""
 	  .org $8000
 	  ldx #$ff
       inx
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 1)=1", "B(P, 0)=1"))
 tests.append(Test("flag zero/carry set iny",
 	"""
 	  .org $8000
 	  ldy #$ff
       iny
-	""", 1+2*2,
+	""", 2*2,
 	"B(P, 1)=1", "B(P, 0)=1"))
 tests.append(Test("flag zero/neg lda",
 	"""
@@ -521,7 +521,7 @@ tests.append(Test("flag zero/neg lda",
 	  ldy #$ff
       iny
       lda #$90
-	""", 1+2*3,
+	""", 2*3,
 	"B(P, 7)=1", "B(P, 1)=0"))
 tests.append(Test("flag zero/neg lda 2",
 	"""
@@ -529,7 +529,7 @@ tests.append(Test("flag zero/neg lda 2",
 	  ldx #7F
       inx
       lda #0
-	""", 1+2*3,
+	""", 2*3,
 	"B(P, 7)=0", "B(P, 1)=1"))
 tests.append(Test("carry chain",
 	"""
@@ -547,7 +547,7 @@ ADR=$00
       lda ADR+1
       adc #0
       sta ADR+1
-	""", 1+(2+3)*2+2+(3+2+3)*2,
+	""", (2+3)*2+2+(3+2+3)*2,
 	"M(00)=0", "M(01)=51"))
 tests.append(Test("carry iny",
 	"""
@@ -556,7 +556,7 @@ ADR=$00
       ldy #0
       sec
       iny
-	""", 1+2*3,
+	""", 2*3,
 	"Y=1"))
 
 tests.append(Test("branch plus",
@@ -568,7 +568,7 @@ tests.append(Test("branch plus",
       bpl .loop
     n:
       jmp n
-	""", 1+2+(2+3)*20,
+	""", 2+(2+3)*20,
 	"X=FF"))
 tests.append(Test("branch minus",
 	"""
@@ -579,7 +579,7 @@ tests.append(Test("branch minus",
       bmi .loop
     n:
       jmp n
-	""", 1+2+(2+3)*20,
+	""", 2+(2+3)*20,
 	"X=0"))
 tests.append(Test("branch ov clear",
 	"""
@@ -591,7 +591,7 @@ tests.append(Test("branch ov clear",
       bvc .loop
     n:
       jmp n
-	""", 1+2*2+(2+3)*20,
+	""", 2*2+(2+3)*20,
 	"A=80"))
 tests.append(Test("branch ov set",
 	"""
@@ -603,7 +603,7 @@ tests.append(Test("branch ov set",
       bvs .loop
     n:
       jmp n
-	""", 1+2*2+(2+3)*20,
+	""", 2*2+(2+3)*20,
 	"A=81"))
 tests.append(Test("branch carry clear",
 	"""
@@ -615,7 +615,7 @@ tests.append(Test("branch carry clear",
       bcc .loop
     n:
       jmp n
-	""", 1+2*2+(2+3)*20,
+	""", 2*2+(2+3)*20,
 	"A=0"))
 tests.append(Test("branch carry set",
 	"""
@@ -627,7 +627,7 @@ tests.append(Test("branch carry set",
       bcs .loop
     n:
       jmp n
-	""", 1+2+(2+2+3)*20,
+	""", 2+(2+2+3)*20,
 	"A=1"))
 tests.append(Test("branch not eq",
 	"""
@@ -640,7 +640,7 @@ tests.append(Test("branch not eq",
       bne .loop
     n:
       jmp n
-	""", 1+2+2+(2+2+3)*20,
+	""", 2+2+(2+2+3)*20,
 	"X=5A"))
 tests.append(Test("branch eq",
 	"""
@@ -653,7 +653,7 @@ tests.append(Test("branch eq",
       beq .loop
     n:
       jmp n
-	""", 1+2+(2+2+2+3)*20,
+	""", 2+(2+2+2+3)*20,
 	"X=52"))
     
 tests.append(Test("branch page overf",
@@ -666,7 +666,7 @@ tests.append(Test("branch page overf",
     test:
       clc
       bcc $8150
-	""", 1+3+2+4,
+	""", 3+2+4,
 	"PC=8150"))
 tests.append(Test("branch page underf",
 	"""
@@ -678,7 +678,7 @@ tests.append(Test("branch page underf",
     test:
       clc
       bcc $80F0
-	""", 1+3+2+4,
+	""", 3+2+4,
 	"PC=80F0"))
 
 
@@ -687,7 +687,7 @@ tests.append(Test("sta zpg",
 	  .org $8000
       lda #$15
       sta $00
-	""", 1+2+3,
+	""", 2+3,
 	"M(00)=15"))
 tests.append(Test("lda zpg",
 	"""
@@ -695,7 +695,7 @@ tests.append(Test("lda zpg",
       lda #$15
       sta $00
       ldx $00
-	""", 1+2+3+3,
+	""", 2+3+3,
 	"X=15"))
 tests.append(Test("adc zpg",
 	"""
@@ -705,7 +705,7 @@ tests.append(Test("adc zpg",
       lda #$05
       clc
       adc $00
-	""", 1+2+3+2+2+3,
+	""", 2+3+2+2+3,
 	"A=1A"))
 tests.append(Test("asl zpg",
 	"""
@@ -713,7 +713,7 @@ tests.append(Test("asl zpg",
       lda #$28
       sta $00
       asl $00
-	""", 1+2+3+5,
+	""", 2+3+5,
 	"M(00)=50"))
 
 tests.append(Test("sta ind, y",
@@ -727,7 +727,7 @@ tests.append(Test("sta ind, y",
       lda #$AA
       ldy #$05
       sta ($00), y
-	""", 1+(2+3)*2+2*2+6,
+	""", (2+3)*2+2*2+6,
 	"M(00)=15", "M(01)=02", "M(021A)=AA"))
 tests.append(Test("sta ind, y page overf",
 	"""
@@ -740,7 +740,7 @@ tests.append(Test("sta ind, y page overf",
       lda #$AA
       ldy #$51
       sta ($00), y
-	""", 1+(2+3)*2+2*2+7,
+	""", (2+3)*2+2*2+7,
 	"M(0341)=AA"))
 
 tests.append(Test("jsr",
@@ -754,7 +754,7 @@ tests.append(Test("jsr",
     test:
       ldy #6
       rts
-	""", 1+2*3+6+2,
+	""", 2*3+6+2,
 	"A=0", "Y=6"))
 tests.append(Test("jsr2",
 	"""
@@ -767,7 +767,7 @@ tests.append(Test("jsr2",
     test:
       ldy #6
       rts
-	""", 1+2*3+(6+2)*2,
+	""", 2*3+(6+2)*2,
 	"A=5"))
 
 tests.append(Test("abs ind",
@@ -780,7 +780,7 @@ tests.append(Test("abs ind",
 	  lda #$10
     test:
       .word real_test
-	""", 1+6+2,
+	""", 6+2,
 	"A=10"))
 tests.append(Test("zpg x,ind",
 	"""
@@ -795,7 +795,7 @@ tests.append(Test("zpg x,ind",
       clc
       lda #$40
       adc ($40, x)
-	""", 1+(2+3)*2+2+6+2+2+2+6,
+	""", (2+3)*2+2+6+2+2+2+6,
 	"A=70", "M(366)=30"))
 tests.append(Test("zpg,x",
 	"""
@@ -806,7 +806,7 @@ tests.append(Test("zpg,x",
       clc
       lda #$10
       adc $50, x
-	""", 1+4+4+2+2+4,
+	""", 4+4+2+2+4,
 	"A=30", "M(60)=20"))
 tests.append(Test("zpg,y",
 	"""
@@ -817,7 +817,7 @@ tests.append(Test("zpg,y",
       clc
       lda #$50
       adc $50, y
-	""", 1+4+4+2+2+4,
+	""", 4+4+2+2+4,
 	"A=70", "M(D0)=20"))
 tests.append(Test("zpg,x rmw",
 	"""
@@ -826,7 +826,7 @@ tests.append(Test("zpg,x rmw",
       ldx #$10
       sta $50, x
       asl $50, x
-	""", 1+2+2+6+6,
+	""", 2+2+6+6,
 	"M(60)=66"))
 tests.append(Test("php/plp",
 	"""
@@ -839,7 +839,7 @@ tests.append(Test("php/plp",
 	  sta $00
 	  adc $00
 	  plp
-	""", 1+2*3+3+2+3*2+4,
+	""", 2*3+3+2+3*2+4,
 	"B(P, 0)=0"))
 
 tests.append(Test("bit load m7",
@@ -849,7 +849,7 @@ tests.append(Test("bit load m7",
 	  sta $20
 	  lda #$70 ; reset neg
 	  bit $20
-	""", 1+2+3+2+3,
+	""", 2+3+2+3,
 	"B(P, 7)=1"))
 tests.append(Test("bit load m6",
 	"""
@@ -858,7 +858,7 @@ tests.append(Test("bit load m6",
 	  sta $20
 	  clv
 	  bit $20
-	""", 1+2+3+2+3,
+	""", 2+3+2+3,
 	"B(P, 6)=1"))
 tests.append(Test("bit load zero",
 	"""
@@ -867,7 +867,7 @@ tests.append(Test("bit load zero",
 	  sta $20
 	  lda #$08
 	  bit $20
-	""", 1+2+3+2+3,
+	""", 2+3+2+3,
 	"B(P, 1)=1"))
 tests.append(Test("bit load not zero",
 	"""
@@ -877,7 +877,7 @@ tests.append(Test("bit load not zero",
 	  lda #$08
 	  ldx #0 ; set zero
 	  bit $20
-	""", 1+2+3+2+2+3,
+	""", 2+3+2+2+3,
 	"B(P, 1)=0"))
 	
 #tests = []
@@ -887,7 +887,7 @@ tests.append(Test("sbc carry clear",
 	  sec
 	  lda #5
 	  sbc #10
-	""", 1+2*3,
+	""", 2*3,
 	"B(P, 0)=0"))
 
 tests.append(Test("sbc carry set",
@@ -896,7 +896,7 @@ tests.append(Test("sbc carry set",
           clc
           lda #5
           sbc #4
-        """, 1+2*3,
+        """, 2*3,
         "B(P, 0)=1"))
 
 tests.append(Test("wdc dea",
@@ -904,7 +904,7 @@ tests.append(Test("wdc dea",
           .org $8000
           lda #5
           dea
-        """, 1+2*2,
+        """, 2*2,
         "A=4"))
         
 tests.append(Test("wdc ina",
@@ -912,7 +912,7 @@ tests.append(Test("wdc ina",
           .org $8000
           lda #2
           ina
-        """, 1+2*2,
+        """, 2*2,
         "A=3"))
 
 import sys

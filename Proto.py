@@ -72,9 +72,15 @@ class Proto:
     def run_cycles(self, cycles):
         self.request_with_echo("run_cycles", [0x20, cycles])
         
-    def perform_cpu_reset(self):
+    def pulse_cpu_reset(self):
+        # only pulls reset down for 1 cycle
         self.request_with_echo("perform_cpu_reset", [0x21, FILL])
-        self.run_cycles(1)
+
+    def perform_cpu_reset(self):
+        # takes care of reset routine
+        # after this, PC is loaded with entry point address
+        self.pulse_cpu_reset()
+        self.run_cycles(8)
         
     def set_free_run(self, enabled):
         self.request_with_echo("set_free_run", [0x22, enabled])
