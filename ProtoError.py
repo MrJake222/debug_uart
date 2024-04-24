@@ -1,0 +1,2 @@
+class ProtoError(Exception):
+    pass

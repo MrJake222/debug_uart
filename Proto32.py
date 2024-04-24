@@ -1,85 +1,71 @@
-FILL = 0x00
-
 from ProtoError import ProtoError
+
+import struct
+from collections import defaultdict
 
 import sys
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
-class Proto:
+class Proto32:
     def __init__(self, ser):
         self.ser = ser
         
     def addr_format(self, addr):
-        return f"{addr:04x}"
+        return f"{addr:08x}"
         
     def value_format(self, value):
         return f"{value:02x}"
         
-    def request_with_echo(self, func_name, req):
+    def request_with_ack(self, func_name, req):
         # used when sending requests with no data to be read
-        # (device should echo the request)
-        # this function verifies that the echo matches what was sent
+        # (device should respond with ack, byte 01)
+        # this function verifies the ack
         data = bytes(req)
         self.ser.write(data)
         
-        echo = self.ser.read(2)
+        echo = self.ser.read(1)
         echo_len = len(echo)
         echo_arr = [d for d in echo]
-        if echo_len < 2:
+        if echo_len < 1:
             eprint(f"\ntimeout occured, received {echo_len} / 2 bytes: {echo_arr}")
             
             raise TimeoutError(f"{func_name}: timeout")
             
-        if echo != data:
-            eprint(f"\n{func_name}: echo not matching")
-            eprint(f"should be: {req}")
+        if echo[0] != 0x01:
+            eprint(f"\n{func_name}: ack not matching")
+            eprint(f"should be: [1]")
             eprint(f"is: {echo_arr}")
             
-            raise ProtoError(f"{func_name}: echo not matching")
+            raise ProtoError(f"{func_name}: ack not matching")
         
     # protocol functions
-    def set_address_pointer_low(self, alow):
-        self.request_with_echo("set_address_pointer_low", [0x01, alow])
+    def set_address_pointer(self, addr):
+        self.request_with_ack("set_address_pointer", bytes([0x01]) + struct.pack("<L", addr))
         
-    def set_address_pointer_high(self, ahigh):
-        self.request_with_echo("set_address_pointer_high", [0x02, ahigh])
+    def get_address_pointer(self):
+        self.ser.write(bytes([0x03]))
+        addr = self.ser.read(4)
+        return struct.unpack("<L", addr)
         
     def get_address_pointer(self):
         self.ser.write(bytes([0x03, FILL]))
         alow, ahigh = self.ser.read(2)
         return ahigh * 256 + alow
         
-    def write_memory_1_byte(self, b):
-        self.request_with_echo("write_memory_1_byte", [0x04, b])
+    def write_memory_4_byte(self, b):
+        self.request_with_ack("write_memory_4_byte", [0x04]+b)
         
-    def read_memory_2_byte(self):
-        self.ser.write(bytes([0x05, FILL]))
-        return self.ser.read(2)
-        
-    def get_A_S(self):
-        self.ser.write(bytes([0x10, FILL]))
-        return self.ser.read(2)
-        
-    def get_X_Y(self):
-        self.ser.write(bytes([0x11, FILL]))
-        return self.ser.read(2)
-        
-    def get_IR_P(self):
-        self.ser.write(bytes([0x12, FILL]))
-        return self.ser.read(2)
-        
-    def get_PC(self):
-        self.ser.write(bytes([0x13, FILL]))
-        pclow, pchigh = self.ser.read(2)
-        return pchigh * 256 + pclow
+    def read_memory_4_byte(self):
+        self.ser.write(bytes([0x05]))
+        return self.ser.read(4)
         
     def run_cycles(self, cycles):
-        self.request_with_echo("run_cycles", [0x20, cycles])
+        self.request_with_ack("run_cycles", [0x20, cycles])
         
     def pulse_cpu_reset(self):
         # only pulls reset down for 1 cycle
-        self.request_with_echo("perform_cpu_reset", [0x21, FILL])
+        self.request_with_ack("perform_cpu_reset", [0x21])
 
     def perform_cpu_reset(self):
         # takes care of reset routine
@@ -88,48 +74,48 @@ class Proto:
         self.run_cycles(8)
         
     def set_free_run(self, enabled):
-        self.request_with_echo("set_free_run", [0x22, enabled])
+        self.request_with_ack("set_free_run", [0x22, enabled])
     
     
     # public interface functions
-    def set_address_pointer(self, a):
-        self.set_address_pointer_low(a % 256)
-        self.set_address_pointer_high(a // 256)
-        
     def write_memory_dict(self, data_dict):
+        
+        data_dict32 = defaultdict(lambda: [0]*4)
+        for adr, val in data_dict.items():
+            adr32 = adr & ~0x3
+            data_dict32[adr32][adr%4] = val
+                    
         lastaddr = -1000
-        for addr, val in data_dict.items():
-            if lastaddr+1 != addr:
-                print(f"loading adr_ptr with ${addr:04x}")
+        for addr in sorted(data_dict32.keys()):
+            val = data_dict32[addr]
+            if lastaddr+4 != addr:
+                print(f"loading adr_ptr with ${addr:08x}")
                 self.set_address_pointer(addr)
             
-            #print(f"${addr:04x}  ${val:02x}")
-            self.write_memory_1_byte(val)
+            # print(f"${addr:08x}  ${val}")
+            self.write_memory_4_byte(val)
             
             lastaddr = addr
         
     def read_memory_dict(self, addresses):
         mem_dict = {addr: -1 for addr in addresses}
+
+        # zero 4 least significant (and with negated 32'b11)
+        addresses = {x&~0x3 for x in addresses}
         
         lastaddr = -1000
-        i = 0
-        while i < len(addresses):
-            addr = addresses[i]
-            
-            if lastaddr+2 != addr:
-                print(f"loading adr_ptr with ${addr:04x}")
+        for addr in sorted(addresses):
+            if lastaddr+4 != addr:
+                print(f"loading adr_ptr with ${addr:08x}")
                 self.set_address_pointer(addr)
             
-            val1, val2 = self.read_memory_2_byte()
-            # print(f"${addr:04x}:  ${val1:02x} ${val2:02x}")
-            mem_dict[addr] = val1
-            mem_dict[addr+1] = val2
+            vals = self.read_memory_4_byte()
+            for i in range(4):
+                mem_dict[addr + i] = vals[i]
             
-            if i+1 < len(addresses) and addr+1 == addresses[i+1]:
-                i += 1
+            # print(f"${addr:08x}:  ${vals}")
             
             lastaddr = addr
-            i += 1
         
         return mem_dict
     
