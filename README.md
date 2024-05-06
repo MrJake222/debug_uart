@@ -1,4 +1,15 @@
 # Debug UART interface
+Debugging interface for:
+- [My 6502 implementation](https://github.com/MrJake222/6502_verilog)
+  - see `blocks/dbgu.v` there,
+  - supports `status` and reset routine (`reset --pc`),
+  - test infrastructure at `test.py`.
+ 
+- [RISC-V survey](https://github.com/MrJake222/riscv-ice40/tree/master)
+  - see `dbgu32.v` there,
+  - use `--d32` with `debug.py`.
+
+
 
 ## Scripting
 - `debug.py` -- Main file, run `./debug.py [write read status run reset] -h` for help,
