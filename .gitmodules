@@ -1,0 +1,3 @@
+[submodule "cfast/lib/cintelhex"]
+	path = cfast/lib/cintelhex
+	url = git@github.com:MrJake222/libcintelhex.git
