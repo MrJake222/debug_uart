@@ -67,6 +67,24 @@ class Proto32:
         # pass to request, expecting 1 byte reply: OK (0x01)
         return self.request(func_name, req, 1, [OK])
     
+    def exchange(self, req, rsp_len):
+        # non-blocking exchange large amounts of data
+        ORIG_T  = self.ser.timeout
+        ORIG_WT = self.ser.write_timeout
+        self.ser.timeout = 0
+        self.ser.write_timeout = 0
+
+        written = 0
+        rsp = bytes()
+        while len(rsp) < rsp_len:
+            if written < len(req):
+                written += self.ser.write(req[written:])
+            rsp += self.ser.read(rsp_len - len(rsp))
+        
+        self.ser.timeout = ORIG_T
+        self.ser.write_timeout = ORIG_WT
+        return rsp
+    
     def batch(self):
         # Batch mode, requests accumulate in memory
         # execute and response collection in flush()
@@ -76,8 +94,7 @@ class Proto32:
         self.bmode = True
         
     def flush(self):
-        self.ser.write(self.bdata)
-        echo = self.ser.read(self.brsp_len)
+        echo = self.exchange(self.bdata, self.brsp_len)
         if len(echo) != self.brsp_len:
             eprint(f"\nbatch flush: response length not matching")
             eprint(f"should be: {self.brsp_len}, is: {len(echo)}")
@@ -125,7 +142,7 @@ class Proto32:
             adr32 = adr & ~0x3
             data_dict32[adr32][adr%4] = val
         
-        # self.batch()
+        self.batch()
         
         lastaddr = -1000
         for addr in sorted(data_dict32.keys()):
@@ -139,7 +156,7 @@ class Proto32:
             
             lastaddr = addr
             
-        # self.flush()
+        self.flush()
         
     def read_memory_dict(self, addresses):
         # zero 4 least significant (and with negated 32'b11)
@@ -148,23 +165,23 @@ class Proto32:
         addresses32 = sorted(addresses32)
         
         rsp = bytes()
-        # self.batch()
+        self.batch()
         
         lastaddr = -1000
         for addr in addresses32:
             
             if lastaddr+4 != addr:
-                # rsp += self.flush()
+                rsp += self.flush()
                 print(f"loading adr_ptr with ${addr:08x}")
                 self.set_address_pointer(addr)
-                # self.batch()
+                self.batch()
             
             ret = self.read_memory_4_byte()
-            rsp += ret
+            # rsp += ret
             
             lastaddr = addr
             
-        # rsp += self.flush()
+        rsp += self.flush()
         print("read rsp len:", len(rsp))
         
         mem_dict = {}
